@@ -9,10 +9,10 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public void Info(string accountId, int failedCount)
+        public void Info(string message)
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
-            logger.Info($"accountId:{accountId} failed times:{failedCount}");
+            logger.Info(message);
         }
     }
 
@@ -65,7 +65,7 @@ namespace DependencyInjectionWorkshop.Models
         {
             // record fail count log
             var failedCount = _failCounter.GetFailedCount(accountId, httpClient);
-            _nLogAdapter.Info(accountId, failedCount);
+            _nLogAdapter.Info($"accountId:{accountId} failed times:{failedCount}");
         }
     }
 }
