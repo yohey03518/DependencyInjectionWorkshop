@@ -5,26 +5,49 @@ using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
+    public class Sha256Adapter
+    {
+        public Sha256Adapter()
+        {
+        }
+
+        public string GetHashedPassword(string inputPwd)
+        {
+            var crypt = new System.Security.Cryptography.SHA256Managed();
+            var hash = new StringBuilder();
+            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(inputPwd));
+            foreach (var theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+
+            var hashedInputPWd = hash.ToString();
+            return hashedInputPWd;
+        }
+    }
+
     public class AuthenticationService
     {
         private ProfileDao _profileDao;
+        private readonly Sha256Adapter _sha256Adapter;
 
         public AuthenticationService()
         {
             _profileDao = new ProfileDao();
+            _sha256Adapter = new Sha256Adapter();
         }
 
         public bool Verify(string accountId, string inputPwd, string otp)
         {
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
             var isLocked = GetAccountIsLocked(accountId, httpClient);
             if (isLocked)
             {
-                throw new FailedTooManyTimesException() { AccountId = accountId };
+                throw new FailedTooManyTimesException() {AccountId = accountId};
             }
 
             var pwdInDb = _profileDao.GetPasswordFromDatabase(accountId);
-            var hashedInputPWd = GetHashedPassword(inputPwd);
+            var hashedInputPWd = _sha256Adapter.GetHashedPassword(inputPwd);
             var currentOtp = GetCurrentOtp(accountId, httpClient);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
@@ -89,20 +112,6 @@ namespace DependencyInjectionWorkshop.Models
 
             var currentOtp = response.Content.ReadAsAsync<string>().Result;
             return currentOtp;
-        }
-
-        private static string GetHashedPassword(string inputPwd)
-        {
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(inputPwd));
-            foreach (var theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-
-            var hashedInputPWd = hash.ToString();
-            return hashedInputPWd;
         }
     }
 
