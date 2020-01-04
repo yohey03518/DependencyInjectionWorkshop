@@ -9,6 +9,7 @@ namespace DependencyInjectionWorkshopTests
     {
         private const string DefaultAccountId = "erwin";
         private const string HashedPassword = "hashedPassword";
+        private const int FailCount = 100;
 
         [SetUp]
         public void SetUp()
@@ -66,6 +67,26 @@ namespace DependencyInjectionWorkshopTests
             WhenInvalidAccountVerify(DefaultAccountId);
 
             ShouldAddFailCount(DefaultAccountId);
+        }
+
+        [Test]
+        public void log_fail_count_when_invalid()
+        {
+            GivenFailCount(DefaultAccountId, FailCount);
+            WhenInvalidAccountVerify(DefaultAccountId);
+
+            LogShouldContains(DefaultAccountId, FailCount);
+        }
+
+        private void LogShouldContains(string accountId, int failCount)
+        {
+            _logger.Received(1)
+                .Info(Arg.Is<string>(message => message.Contains(failCount.ToString()) && message.Contains(accountId)));
+        }
+
+        private void GivenFailCount(string accountId, int failCount)
+        {
+            _failCounter.GetFailedCount(accountId).Returns(failCount);
         }
 
         private void ShouldAddFailCount(string accountId)
