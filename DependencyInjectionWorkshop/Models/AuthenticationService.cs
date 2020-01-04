@@ -49,7 +49,7 @@ namespace DependencyInjectionWorkshop.Models
 
             string message = $"account: {accountId} try to login failed.";
             var slackClient = new SlackClient("my api token");
-            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+            slackClient.PostMessage(messageResponse => { }, "my channel", message, "my bot name");
             return false;
         }
     }
