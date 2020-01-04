@@ -13,7 +13,6 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string accountId, string inputPwd, string otp)
         {
-
             var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
             var isLockedResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
 
@@ -63,12 +62,20 @@ namespace DependencyInjectionWorkshop.Models
                 var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
                 addFailedCountResponse.EnsureSuccessStatusCode();
 
+
+                // record fail count log
+                var failedCountResponse =
+                    httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
+                failedCountResponse.EnsureSuccessStatusCode();
+                var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
+                var logger = NLog.LogManager.GetCurrentClassLogger();
+                logger.Info($"accountId:{accountId} failed times:{failedCount}");
+
                 string message = $"account: {accountId} try to login failed.";
                 var slackClient = new SlackClient("my api token");
                 slackClient.PostMessage(messageResponse => { }, "my channel", message, "my bot name");
                 return false;
             }
-
         }
     }
 
