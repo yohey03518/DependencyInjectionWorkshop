@@ -11,6 +11,7 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultAccountId = "erwin";
         private const string HashedPassword = "hashedPwd";
         private const string InputPassword = "pwd";
+        private const int FailCount = 91;
 
         private AuthenticationService _authenticationService;
 
@@ -78,11 +79,18 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void log_fail_count_when_invalid()
         {
-            _fakeFailCounter.GetFailedCount(DefaultAccountId).Returns(91);
+            _fakeFailCounter.GetFailedCount(DefaultAccountId).Returns(FailCount);
             WhenAccountInvalid(DefaultAccountId);
 
-            _fakeLogger.Received(1).Info(Arg.Is<string>(message => message.Contains(DefaultAccountId) && message.Contains(91.ToString())));
+            LogShouldContains(DefaultAccountId, FailCount.ToString());
         }
+
+        private void LogShouldContains(string accountId, string failCount)
+        {
+            _fakeLogger.Received(1).Info(Arg.Is<string>(message =>
+                message.Contains(accountId) && message.Contains(failCount)));
+        }
+
         private void ShouldAddFailCount(string accountId)
         {
             _fakeFailCounter.Received(1).AddFailCount(accountId);
