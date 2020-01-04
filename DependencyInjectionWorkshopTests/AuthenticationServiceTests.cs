@@ -10,6 +10,20 @@ namespace DependencyInjectionWorkshopTests
     {
         private const string DefaultAccountId = "erwin";
 
+        private AuthenticationService _authenticationService;
+
+        private IProfile _fakeProfile;
+
+        private IHash _fakeHash;
+
+        private IOtpService _fakeOtpService;
+
+        private ILogger _fakeLogger;
+
+        private IFailCounter _fakeFailCounter;
+
+        private INotification _fakeNotification;
+
         [SetUp]
         public void SetUp()
         {
@@ -22,14 +36,6 @@ namespace DependencyInjectionWorkshopTests
             _authenticationService = new AuthenticationService(_fakeProfile, _fakeHash, _fakeOtpService,
                 _fakeFailCounter, _fakeNotification, _fakeLogger);
         }
-
-        private AuthenticationService _authenticationService;
-        private IProfile _fakeProfile;
-        private IHash _fakeHash;
-        private IOtpService _fakeOtpService;
-        private ILogger _fakeLogger;
-        private IFailCounter _fakeFailCounter;
-        private INotification _fakeNotification;
 
         [Test]
         public void is_valid()
