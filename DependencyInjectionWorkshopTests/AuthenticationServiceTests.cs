@@ -7,24 +7,59 @@ namespace DependencyInjectionWorkshopTests
     [TestFixture]
     public class AuthenticationServiceTests
     {
+        private const string DefaultAccountId = "erwin";
+        private const string HashedPassword = "hashedPassword";
+
+        [SetUp]
+        public void SetUp()
+        {
+            _otpService = Substitute.For<IOtpService>();
+            _logger = Substitute.For<ILogger>();
+            _failCounter = Substitute.For<IFailCounter>();
+            _hash = Substitute.For<IHash>();
+            _notification = Substitute.For<INotify>();
+            _profile = Substitute.For<IProfile>();
+            _authenticationService =
+                new AuthenticationService(_profile, _failCounter, _hash, _otpService, _logger, _notification);
+        }
+
+        private IOtpService _otpService;
+        private ILogger _logger;
+        private IFailCounter _failCounter;
+        private IHash _hash;
+        private INotify _notification;
+        private IProfile _profile;
+        private AuthenticationService _authenticationService;
+
         [Test]
         public void is_valid()
         {
-            var otpService = Substitute.For<IOtpService>();
-            var logger = Substitute.For<ILogger>();
-            var failCounter = Substitute.For<IFailCounter>();
-            var hash = Substitute.For<IHash>();
-            var notification = Substitute.For<INotify>();
-            var profile = Substitute.For<IProfile>();
+            GivenStoredHashPassword(DefaultAccountId, HashedPassword);
+            GivenHashResult("password", HashedPassword);
+            GivenOtp(DefaultAccountId, "1234");
 
-            var authenticationService =
-                new AuthenticationService(profile, failCounter, hash, otpService, logger, notification);
+            ShouldBeValid(DefaultAccountId, "password", "1234");
+        }
 
-            profile.GetPassword("erwin").Returns("hashedPassword");
-            hash.Compute("password").Returns("hashedPassword");
-            otpService.GetCurrentOtp("erwin").Returns("1234");
-            var isValid = authenticationService.Verify("erwin", "password", "1234");
+        private void ShouldBeValid(string accountId, string password, string otp)
+        {
+            var isValid = _authenticationService.Verify(accountId, password, otp);
             Assert.IsTrue(isValid);
+        }
+
+        private void GivenOtp(string accountId, string otp)
+        {
+            _otpService.GetCurrentOtp(accountId).Returns(otp);
+        }
+
+        private void GivenHashResult(string rawText, string hashResult)
+        {
+            _hash.Compute(rawText).Returns(hashResult);
+        }
+
+        private void GivenStoredHashPassword(string accountId, string hashedpassword)
+        {
+            _profile.GetPassword(accountId).Returns(hashedpassword);
         }
     }
 }
