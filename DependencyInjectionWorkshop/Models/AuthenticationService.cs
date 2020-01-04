@@ -2,7 +2,7 @@
 {
     public class AuthenticationService
     {
-        private readonly ProfileDao _profileDao;
+        private readonly IProfile _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
         private readonly OtpService _otpService;
         private readonly FailCounter _failCounter;
@@ -19,7 +19,8 @@
             _nLogAdapter = new NLogAdapter();
         }
 
-        public AuthenticationService(ProfileDao profileDao, Sha256Adapter sha256Adapter, OtpService otpService, FailCounter failCounter, SlackAdapter slackAdapter, NLogAdapter nLogAdapter)
+        public AuthenticationService(IProfile profileDao, Sha256Adapter sha256Adapter, OtpService otpService,
+            FailCounter failCounter, SlackAdapter slackAdapter, NLogAdapter nLogAdapter)
         {
             _profileDao = profileDao;
             _sha256Adapter = sha256Adapter;
