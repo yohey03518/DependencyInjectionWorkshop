@@ -25,8 +25,7 @@ namespace DependencyInjectionWorkshop.Models
             var currentOtp = GetCurrentOtp(accountId, httpClient);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
-                var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
-                resetResponse.EnsureSuccessStatusCode();
+                ResetFailCount(accountId, httpClient);
                 return true;
             }
             else
@@ -36,6 +35,12 @@ namespace DependencyInjectionWorkshop.Models
                 Notify(accountId);
                 return false;
             }
+        }
+
+        private static void ResetFailCount(string accountId, HttpClient httpClient)
+        {
+            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            resetResponse.EnsureSuccessStatusCode();
         }
 
         private static bool GetAccountIsLocked(string accountId, HttpClient httpClient)
