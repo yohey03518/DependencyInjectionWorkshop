@@ -56,7 +56,12 @@ namespace DependencyInjectionWorkshopTests
             GivenHashedPassword(InputPassword, HashedPassword);
             GivenOtp(DefaultAccountId, "1234");
 
-            var isValid = _authenticationService.Verify(DefaultAccountId, InputPassword, "wrong otp");
+            ShouldBeInvalid(DefaultAccountId, InputPassword, "wrong otp");
+        }
+
+        private void ShouldBeInvalid(string accountId, string inputPassword, string otp)
+        {
+            var isValid = _authenticationService.Verify(accountId, inputPassword, otp);
             Assert.IsFalse(isValid);
         }
 
