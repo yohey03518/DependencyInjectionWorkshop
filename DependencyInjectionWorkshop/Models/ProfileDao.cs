@@ -7,17 +7,17 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface IProfile
     {
-        string GetPasswordFromDatabase(string accountId);
+        string GetPassword(string accountId);
     }
 
     public class ProfileDao : IProfile
     {
-        public string GetPasswordFromDatabase(string accountId)
+        public string GetPassword(string accountId)
         {
             string pwdInDb;
             using (var connection = new SqlConnection("my connection string"))
             {
-                pwdInDb = connection.Query<string>("spGetUserPassword", new { Id = accountId },
+                pwdInDb = connection.Query<string>("spGetUserPassword", new {Id = accountId},
                     commandType: CommandType.StoredProcedure).SingleOrDefault();
             }
 

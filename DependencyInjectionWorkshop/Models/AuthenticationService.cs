@@ -38,7 +38,7 @@
                 throw new FailedTooManyTimesException() {AccountId = accountId};
             }
 
-            var pwdInDb = _profileDao.GetPasswordFromDatabase(accountId);
+            var pwdInDb = _profileDao.GetPassword(accountId);
             var hashedInputPWd = _sha256Adapter.GetHashedPassword(inputPwd);
             var currentOtp = _otpService.GetCurrentOtp(accountId);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
