@@ -26,17 +26,38 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class FailCounter
+    {
+        public FailCounter()
+        {
+        }
+
+        public void Reset(string accountId, HttpClient httpClient)
+        {
+            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            resetResponse.EnsureSuccessStatusCode();
+        }
+
+        public void AddFailCount(string accountId, HttpClient httpClient)
+        {
+            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            addFailedCountResponse.EnsureSuccessStatusCode();
+        }
+    }
+
     public class AuthenticationService
     {
         private ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
         private readonly OtpService _otpService;
+        private readonly FailCounter _failCounter;
 
         public AuthenticationService()
         {
             _profileDao = new ProfileDao();
             _sha256Adapter = new Sha256Adapter();
             _otpService = new OtpService();
+            _failCounter = new FailCounter();
         }
 
         public bool Verify(string accountId, string inputPwd, string otp)
@@ -53,22 +74,16 @@ namespace DependencyInjectionWorkshop.Models
             var currentOtp = _otpService.GetCurrentOtp(accountId, httpClient);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
-                ResetFailCount(accountId, httpClient);
+                _failCounter.Reset(accountId, httpClient);
                 return true;
             }
             else
             {
-                AddFailCount(accountId, httpClient);
+                _failCounter.AddFailCount(accountId, httpClient);
                 RecordFailCountLog(accountId, httpClient);
                 Notify(accountId);
                 return false;
             }
-        }
-
-        private static void ResetFailCount(string accountId, HttpClient httpClient)
-        {
-            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
-            resetResponse.EnsureSuccessStatusCode();
         }
 
         private static bool GetAccountIsLocked(string accountId, HttpClient httpClient)
@@ -96,12 +111,6 @@ namespace DependencyInjectionWorkshop.Models
             var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
-        }
-
-        private static void AddFailCount(string accountId, HttpClient httpClient)
-        {
-            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
-            addFailedCountResponse.EnsureSuccessStatusCode();
         }
     }
 
