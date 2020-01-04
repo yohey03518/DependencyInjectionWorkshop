@@ -75,6 +75,14 @@ namespace DependencyInjectionWorkshopTests
             ShouldAddFailCount(DefaultAccountId);
         }
 
+        [Test]
+        public void log_fail_count_when_invalid()
+        {
+            _fakeFailCounter.GetFailedCount(DefaultAccountId).Returns(91);
+            WhenAccountInvalid(DefaultAccountId);
+
+            _fakeLogger.Received(1).Info(Arg.Is<string>(message => message.Contains(DefaultAccountId) && message.Contains(91.ToString())));
+        }
         private void ShouldAddFailCount(string accountId)
         {
             _fakeFailCounter.Received(1).AddFailCount(accountId);
