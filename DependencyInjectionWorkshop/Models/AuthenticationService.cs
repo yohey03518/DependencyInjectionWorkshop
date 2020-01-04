@@ -30,11 +30,13 @@ namespace DependencyInjectionWorkshop.Models
     {
         private ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
+        private readonly OtpService _otpService;
 
         public AuthenticationService()
         {
             _profileDao = new ProfileDao();
             _sha256Adapter = new Sha256Adapter();
+            _otpService = new OtpService();
         }
 
         public bool Verify(string accountId, string inputPwd, string otp)
@@ -48,7 +50,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var pwdInDb = _profileDao.GetPasswordFromDatabase(accountId);
             var hashedInputPWd = _sha256Adapter.GetHashedPassword(inputPwd);
-            var currentOtp = GetCurrentOtp(accountId, httpClient);
+            var currentOtp = _otpService.GetCurrentOtp(accountId, httpClient);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
                 ResetFailCount(accountId, httpClient);
@@ -100,18 +102,6 @@ namespace DependencyInjectionWorkshop.Models
         {
             var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
-        }
-
-        private static string GetCurrentOtp(string accountId, HttpClient httpClient)
-        {
-            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"web api error, accountId:{accountId}");
-            }
-
-            var currentOtp = response.Content.ReadAsAsync<string>().Result;
-            return currentOtp;
         }
     }
 
