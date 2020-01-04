@@ -51,6 +51,28 @@ namespace DependencyInjectionWorkshopTests
             ShouldBeInvalid(DefaultAccountId, "password", "wrong otp");
         }
 
+        [Test]
+        public void reset_fail_count_when_valid()
+        {
+            WhenValidAccountVerify(DefaultAccountId);
+
+            ShouldResetFailCount(DefaultAccountId);
+        }
+
+        private void ShouldResetFailCount(string accountId)
+        {
+            _failCounter.Received(1).Reset(accountId);
+        }
+
+        private void WhenValidAccountVerify(string accountId)
+        {
+            GivenStoredHashPassword(accountId, HashedPassword);
+            GivenHashResult("password", HashedPassword);
+            GivenOtp(accountId, "1234");
+
+            _authenticationService.Verify(accountId, "password", "1234");
+        }
+
         private void ShouldBeInvalid(string accountId, string password, string otp)
         {
             var isValid = _authenticationService.Verify(accountId, password, otp);
