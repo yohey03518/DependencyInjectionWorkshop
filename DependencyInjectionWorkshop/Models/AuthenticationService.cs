@@ -18,7 +18,7 @@
         }
 
         public AuthenticationService(IProfile profileDao, IHash hash, IOtpService otpService,
-            IFailCounter failCounter, INotification notification, ILogger logger)
+            IFailCounter failCounter, ILogger logger)
         {
             _profileDao = profileDao;
             _hash = hash;
