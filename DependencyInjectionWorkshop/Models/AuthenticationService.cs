@@ -39,7 +39,7 @@
             }
 
             var pwdInDb = _profileDao.GetPassword(accountId);
-            var hashedInputPWd = _hash.GetHashedPassword(inputPwd);
+            var hashedInputPWd = _hash.Compute(inputPwd);
             var currentOtp = _otpService.GetCurrentOtp(accountId);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
