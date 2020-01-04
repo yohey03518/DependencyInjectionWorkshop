@@ -5,9 +5,14 @@ using Dapper;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class ProfileDao
+    public interface IProfileDao
     {
-        public string GetPasswordFromDb(string accountId)
+        string GetPassword(string accountId);
+    }
+
+    public class ProfileDao : IProfileDao
+    {
+        public string GetPassword(string accountId)
         {
             //get password
             string passwordFromDb;

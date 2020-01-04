@@ -1,12 +1,17 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class NLoggerAdapter
+    public interface ILogger
     {
-        public NLoggerAdapter()
+        void Info(string message);
+    }
+
+    public class NLogAdapter : ILogger
+    {
+        public NLogAdapter()
         {
         }
 
-        public void LogInfo(string message)
+        public void Info(string message)
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info(message);
