@@ -22,7 +22,7 @@ namespace DependencyInjectionWorkshop.Models
         public bool Verify(string accountId, string inputPwd, string otp)
         {
             var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
-            var isLocked = GetAccountIsLocked(accountId, httpClient);
+            var isLocked = _failCounter.GetAccountIsLocked(accountId, httpClient);
             if (isLocked)
             {
                 throw new FailedTooManyTimesException() {AccountId = accountId};
@@ -43,15 +43,6 @@ namespace DependencyInjectionWorkshop.Models
                 Notify(accountId);
                 return false;
             }
-        }
-
-        private static bool GetAccountIsLocked(string accountId, HttpClient httpClient)
-        {
-            var isLockedResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
-
-            isLockedResponse.EnsureSuccessStatusCode();
-            var isLocked = isLockedResponse.Content.ReadAsAsync<bool>().Result;
-            return isLocked;
         }
 
         private static void Notify(string accountId)
