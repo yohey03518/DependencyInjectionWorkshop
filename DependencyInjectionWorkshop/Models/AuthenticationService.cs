@@ -22,16 +22,13 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException(){AccountId = accountId};
             }
 
-            string ret;
+            string pwdInDb;
             using (var connection = new SqlConnection("my connection string"))
             {
-                var password = connection.Query<string>("spGetUserPassword", new { Id = accountId },
+                 pwdInDb = connection.Query<string>("spGetUserPassword", new { Id = accountId },
                     commandType: CommandType.StoredProcedure).SingleOrDefault();
-
-                ret = password;
             }
 
-            string pwdInDb = ret;
 
             var crypt = new System.Security.Cryptography.SHA256Managed();
             var hash = new StringBuilder();
