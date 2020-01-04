@@ -9,8 +9,30 @@ using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
+    public class ProfileDao
+    {
+        public string GetPasswordFromDatabase(string accountId)
+        {
+            string pwdInDb;
+            using (var connection = new SqlConnection("my connection string"))
+            {
+                pwdInDb = connection.Query<string>("spGetUserPassword", new { Id = accountId },
+                    commandType: CommandType.StoredProcedure).SingleOrDefault();
+            }
+
+            return pwdInDb;
+        }
+    }
+
     public class AuthenticationService
     {
+        private ProfileDao _profileDao;
+
+        public AuthenticationService()
+        {
+            _profileDao = new ProfileDao();
+        }
+
         public bool Verify(string accountId, string inputPwd, string otp)
         {
             var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
@@ -20,7 +42,7 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException() { AccountId = accountId };
             }
 
-            var pwdInDb = GetPasswordFromDatabase(accountId);
+            var pwdInDb = _profileDao.GetPasswordFromDatabase(accountId);
             var hashedInputPWd = GetHashedPassword(inputPwd);
             var currentOtp = GetCurrentOtp(accountId, httpClient);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
@@ -100,18 +122,6 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedInputPWd = hash.ToString();
             return hashedInputPWd;
-        }
-
-        private static string GetPasswordFromDatabase(string accountId)
-        {
-            string pwdInDb;
-            using (var connection = new SqlConnection("my connection string"))
-            {
-                pwdInDb = connection.Query<string>("spGetUserPassword", new { Id = accountId },
-                    commandType: CommandType.StoredProcedure).SingleOrDefault();
-            }
-
-            return pwdInDb;
         }
     }
 
