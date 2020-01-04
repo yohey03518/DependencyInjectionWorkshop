@@ -9,6 +9,9 @@ namespace DependencyInjectionWorkshopTests
     public class AuthenticationServiceTests
     {
         private const string DefaultAccountId = "erwin";
+        private const string HashedPassword = "hashedPwd";
+        private const string InputPassword = "pwd";
+        private const string Otp = "1234";
 
         private AuthenticationService _authenticationService;
 
@@ -40,11 +43,11 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            GivenPasswordInDb(DefaultAccountId, "hashedPwd");
-            GivenHashedPassword("pwd", "hashedPwd");
-            GivenOtp(DefaultAccountId, "1234");
+            GivenPasswordInDb(DefaultAccountId, HashedPassword);
+            GivenHashedPassword(InputPassword, HashedPassword);
+            GivenOtp(DefaultAccountId, Otp);
 
-            ShouldBeValid(DefaultAccountId, "pwd", "1234");
+            ShouldBeValid(DefaultAccountId, InputPassword, Otp);
         }
 
         private void ShouldBeValid(string accountId, string inputPwd, string otp)
