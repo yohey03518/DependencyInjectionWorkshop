@@ -5,7 +5,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
-        private ProfileDao _profileDao;
+        private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
         private readonly OtpService _otpService;
         private readonly FailCounter _failCounter;
