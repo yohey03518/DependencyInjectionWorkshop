@@ -1,4 +1,5 @@
-﻿using DependencyInjectionWorkshop.Models;
+﻿using System;
+using DependencyInjectionWorkshop.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -84,6 +85,24 @@ namespace DependencyInjectionWorkshopTests
             WhenInvalidAccountVerify(DefaultAccountId);
 
             ShouldNotifyUser(DefaultAccountId);
+        }
+
+        [Test]
+        public void account_is_lock()
+        {
+            GivenAccountIsLocked(DefaultAccountId, true);
+            ShouldThrow<FailedTooManyTimesException>();
+        }
+
+        private void ShouldThrow<FailedTooManyTimesException>() where FailedTooManyTimesException : Exception
+        {
+            TestDelegate action = () => _authenticationService.Verify(DefaultAccountId, "password", "otp");
+            Assert.Throws<FailedTooManyTimesException>(action);
+        }
+
+        private void GivenAccountIsLocked(string accountId, bool isLocked)
+        {
+            _failCounter.GetIsLocked(accountId).Returns(isLocked);
         }
 
         private void ShouldNotifyUser(string accountId)
