@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -8,31 +9,35 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public void Reset(string accountId, HttpClient httpClient)
+        public void Reset(string accountId)
         {
-            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
             resetResponse.EnsureSuccessStatusCode();
         }
 
-        public void AddFailCount(string accountId, HttpClient httpClient)
+        public void AddFailCount(string accountId)
         {
-            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
-        public bool GetAccountIsLocked(string accountId, HttpClient httpClient)
+        public bool GetAccountIsLocked(string accountId)
         {
-            var isLockedResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
+            var isLockedResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                .PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
 
             isLockedResponse.EnsureSuccessStatusCode();
             var isLocked = isLockedResponse.Content.ReadAsAsync<bool>().Result;
             return isLocked;
         }
 
-        public int GetFailedCount(string accountId, HttpClient httpClient)
+        public int GetFailedCount(string accountId)
         {
             var failedCountResponse =
-                httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
+                new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                    .PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
             failedCountResponse.EnsureSuccessStatusCode();
             var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
             return failedCount;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-
-namespace DependencyInjectionWorkshop.Models
+﻿namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
@@ -24,8 +21,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string inputPwd, string otp)
         {
-            var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
-            var isLocked = _failCounter.GetAccountIsLocked(accountId, httpClient);
+            var isLocked = _failCounter.GetAccountIsLocked(accountId);
             if (isLocked)
             {
                 throw new FailedTooManyTimesException() {AccountId = accountId};
@@ -33,25 +29,25 @@ namespace DependencyInjectionWorkshop.Models
 
             var pwdInDb = _profileDao.GetPasswordFromDatabase(accountId);
             var hashedInputPWd = _sha256Adapter.GetHashedPassword(inputPwd);
-            var currentOtp = _otpService.GetCurrentOtp(accountId, httpClient);
+            var currentOtp = _otpService.GetCurrentOtp(accountId);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
-                _failCounter.Reset(accountId, httpClient);
+                _failCounter.Reset(accountId);
                 return true;
             }
             else
             {
-                _failCounter.AddFailCount(accountId, httpClient);
-                RecordFailCountLog(accountId, httpClient);
+                _failCounter.AddFailCount(accountId);
+                RecordFailCountLog(accountId);
                 _slackAdapter.Notify(accountId);
                 return false;
             }
         }
 
-        private void RecordFailCountLog(string accountId, HttpClient httpClient)
+        private void RecordFailCountLog(string accountId)
         {
             // record fail count log
-            var failedCount = _failCounter.GetFailedCount(accountId, httpClient);
+            var failedCount = _failCounter.GetFailedCount(accountId);
             _nLogAdapter.Info($"accountId:{accountId} failed times:{failedCount}");
         }
     }
