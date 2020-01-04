@@ -1,6 +1,6 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly IProfile _profileDao;
         private readonly IHash _hash;

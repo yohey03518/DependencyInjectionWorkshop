@@ -13,7 +13,7 @@ namespace DependencyInjectionWorkshopTests
         private const string InputPassword = "pwd";
         private const int FailCount = 91;
 
-        private AuthenticationService _authenticationService;
+        private IAuthenticationService _authenticationService;
 
         private IProfile _fakeProfile;
 
