@@ -3,31 +3,31 @@
     public class AuthenticationService
     {
         private readonly IProfile _profileDao;
-        private readonly Sha256Adapter _sha256Adapter;
-        private readonly OtpService _otpService;
-        private readonly FailCounter _failCounter;
-        private readonly SlackAdapter _slackAdapter;
-        private readonly NLogAdapter _nLogAdapter;
+        private readonly IHash _hash;
+        private readonly IOtpService _otpService;
+        private readonly IFailCounter _failCounter;
+        private readonly INotification _notification;
+        private readonly ILogger _logger;
 
         public AuthenticationService()
         {
             _profileDao = new ProfileDao();
-            _sha256Adapter = new Sha256Adapter();
+            _hash = new Sha256Adapter();
             _otpService = new OtpService();
             _failCounter = new FailCounter();
-            _slackAdapter = new SlackAdapter();
-            _nLogAdapter = new NLogAdapter();
+            _notification = new SlackAdapter();
+            _logger = new NLogAdapter();
         }
 
-        public AuthenticationService(IProfile profileDao, Sha256Adapter sha256Adapter, OtpService otpService,
-            FailCounter failCounter, SlackAdapter slackAdapter, NLogAdapter nLogAdapter)
+        public AuthenticationService(IProfile profileDao, IHash hash, IOtpService otpService,
+            IFailCounter failCounter, INotification notification, ILogger logger)
         {
             _profileDao = profileDao;
-            _sha256Adapter = sha256Adapter;
+            _hash = hash;
             _otpService = otpService;
             _failCounter = failCounter;
-            _slackAdapter = slackAdapter;
-            _nLogAdapter = nLogAdapter;
+            _notification = notification;
+            _logger = logger;
         }
 
         public bool Verify(string accountId, string inputPwd, string otp)
@@ -39,7 +39,7 @@
             }
 
             var pwdInDb = _profileDao.GetPassword(accountId);
-            var hashedInputPWd = _sha256Adapter.GetHashedPassword(inputPwd);
+            var hashedInputPWd = _hash.GetHashedPassword(inputPwd);
             var currentOtp = _otpService.GetCurrentOtp(accountId);
             if (pwdInDb == hashedInputPWd && currentOtp == otp)
             {
@@ -50,7 +50,7 @@
             {
                 _failCounter.AddFailCount(accountId);
                 RecordFailCountLog(accountId);
-                _slackAdapter.Notify(accountId);
+                _notification.Notify(accountId);
                 return false;
             }
         }
@@ -59,7 +59,7 @@
         {
             // record fail count log
             var failedCount = _failCounter.GetFailedCount(accountId);
-            _nLogAdapter.Info($"accountId:{accountId} failed times:{failedCount}");
+            _logger.Info($"accountId:{accountId} failed times:{failedCount}");
         }
     }
 }
