@@ -19,6 +19,16 @@
             _nLogAdapter = new NLogAdapter();
         }
 
+        public AuthenticationService(ProfileDao profileDao, Sha256Adapter sha256Adapter, OtpService otpService, FailCounter failCounter, SlackAdapter slackAdapter, NLogAdapter nLogAdapter)
+        {
+            _profileDao = profileDao;
+            _sha256Adapter = sha256Adapter;
+            _otpService = otpService;
+            _failCounter = failCounter;
+            _slackAdapter = slackAdapter;
+            _nLogAdapter = nLogAdapter;
+        }
+
         public bool Verify(string accountId, string inputPwd, string otp)
         {
             var isLocked = _failCounter.GetAccountIsLocked(accountId);
