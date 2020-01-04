@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -24,9 +23,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
-
-            var isLockedResponse = _failCounter.GetAccountIsLocked(accountId, httpClient);
+            var isLockedResponse = _failCounter.GetAccountIsLocked(accountId);
             var isLocked = isLockedResponse.Content.ReadAsAsync<bool>().Result;
             if (isLocked)
             {
@@ -38,20 +35,20 @@ namespace DependencyInjectionWorkshop.Models
             var hashedPassword = _sha256Adapter.GetHashedPassword(password);
 
             //get otp
-            var currentOtp = _otpService.GetCurrentOtp(accountId, httpClient);
+            var currentOtp = _otpService.GetCurrentOtp(accountId);
 
             //compare
             if (passwordFromDb == hashedPassword && currentOtp == otp)
             {
-                _failCounter.ResetFailCount(accountId, httpClient);
+                _failCounter.ResetFailCount(accountId);
 
                 return true;
             }
             else
             {
-                _failCounter.AddFailCount(accountId, httpClient);
+                _failCounter.AddFailCount(accountId);
 
-                LogFailCount(accountId, httpClient);
+                LogFailCount(accountId);
 
                 _slackAdapter.Notify(accountId);
 
@@ -59,9 +56,9 @@ namespace DependencyInjectionWorkshop.Models
             }
         }
 
-        private void LogFailCount(string accountId, HttpClient httpClient)
+        private void LogFailCount(string accountId)
         {
-            var failedCount = _failCounter.GetFailedCount(accountId, httpClient);
+            var failedCount = _failCounter.GetFailedCount(accountId);
             _nLoggerAdapter.LogInfo($"accountId:{accountId} failed times:{failedCount}");
         }
     }
