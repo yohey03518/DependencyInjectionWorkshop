@@ -20,7 +20,7 @@ namespace DependencyInjectionWorkshop.Models
             isLockedResponse.EnsureSuccessStatusCode();
             if (isLockedResponse.Content.ReadAsAsync<bool>().Result)
             {
-                throw new FailedTooManyTimesException();
+                throw new FailedTooManyTimesException(){AccountId = accountId};
             }
 
             string ret;
@@ -74,5 +74,6 @@ namespace DependencyInjectionWorkshop.Models
 
     public class FailedTooManyTimesException : Exception
     {
+        public string AccountId { get; set; }
     }
 }
