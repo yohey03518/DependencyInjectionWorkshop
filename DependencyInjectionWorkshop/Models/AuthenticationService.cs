@@ -46,14 +46,11 @@ namespace DependencyInjectionWorkshop.Models
             {
                 return true;
             }
-           Notify($"account: {accountId} try to login failed."); 
-            return false;
-        }
 
-        public void Notify(string message)
-        {
+            string message = $"account: {accountId} try to login failed.";
             var slackClient = new SlackClient("my api token");
-            slackClient.PostMessage(response => { }, "my channel", message, "my bot name");
+            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+            return false;
         }
     }
 }
