@@ -1,10 +1,11 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
-        private readonly IProfileDao _profileDao;
+        private readonly IProfile _profile;
         private readonly IFailCounter _failCounter;
         private readonly IHash _hash;
         private readonly IOtpService _otpService;
@@ -13,7 +14,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public AuthenticationService()
         {
-            _profileDao = new ProfileDao();
+            _profile = new ProfileDao();
             _failCounter = new FailCounter();
             _hash = new Sha256Adapter();
             _otpService = new OtpService();
@@ -21,9 +22,9 @@ namespace DependencyInjectionWorkshop.Models
             _notification = new SlackAdapter();
         }
 
-        public AuthenticationService(IProfileDao profileDao, IFailCounter failCounter, IHash hash, IOtpService otpService, ILogger logger, INotify notification)
+        public AuthenticationService(IProfile profile, IFailCounter failCounter, IHash hash, IOtpService otpService, ILogger logger, INotify notification)
         {
-            _profileDao = profileDao;
+            _profile = profile;
             _failCounter = failCounter;
             _hash = hash;
             _otpService = otpService;
@@ -33,16 +34,16 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            var isLockedResponse = _failCounter.GetAccountIsLocked(accountId);
-            var isLocked = isLockedResponse.Content.ReadAsAsync<bool>().Result;
+            //check account locked
+            var isLocked = _failCounter.GetIsLocked(accountId);
             if (isLocked)
             {
                 throw new FailedTooManyTimesException() { AccountId = accountId };
             }
 
-            var passwordFromDb = _profileDao.GetPassword(accountId);
+            var passwordFromDb = _profile.GetPassword(accountId);
 
-            var hashedPassword = _hash.GetHash(password);
+            var hashedPassword = _hash.Compute(password);
 
             //get otp
             var currentOtp = _otpService.GetCurrentOtp(accountId);
