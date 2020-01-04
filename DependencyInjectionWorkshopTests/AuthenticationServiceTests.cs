@@ -11,7 +11,6 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultAccountId = "erwin";
         private const string HashedPassword = "hashedPwd";
         private const string InputPassword = "pwd";
-        private const string Otp = "1234";
 
         private AuthenticationService _authenticationService;
 
@@ -45,9 +44,20 @@ namespace DependencyInjectionWorkshopTests
         {
             GivenPasswordInDb(DefaultAccountId, HashedPassword);
             GivenHashedPassword(InputPassword, HashedPassword);
-            GivenOtp(DefaultAccountId, Otp);
+            GivenOtp(DefaultAccountId, "1234");
 
-            ShouldBeValid(DefaultAccountId, InputPassword, Otp);
+            ShouldBeValid(DefaultAccountId, InputPassword, "1234");
+        }
+
+        [Test]
+        public void is_invalid()
+        {
+            GivenPasswordInDb(DefaultAccountId, HashedPassword);
+            GivenHashedPassword(InputPassword, HashedPassword);
+            GivenOtp(DefaultAccountId, "1234");
+
+            var isValid = _authenticationService.Verify(DefaultAccountId, InputPassword, "wrong otp");
+            Assert.IsFalse(isValid);
         }
 
         private void ShouldBeValid(string accountId, string inputPwd, string otp)
