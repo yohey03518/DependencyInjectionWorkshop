@@ -85,6 +85,19 @@ namespace DependencyInjectionWorkshopTests
             LogShouldContains(DefaultAccountId, FailCount.ToString());
         }
 
+        [Test]
+        public void notify_when_invalid()
+        {
+            WhenAccountInvalid(DefaultAccountId);
+
+            ShouldNotify(DefaultAccountId);
+        }
+
+        private void ShouldNotify(string accountId)
+        {
+            _fakeNotification.Received(1).Notify(accountId);
+        }
+
         private void LogShouldContains(string accountId, string failCount)
         {
             _fakeLogger.Received(1).Info(Arg.Is<string>(message =>
