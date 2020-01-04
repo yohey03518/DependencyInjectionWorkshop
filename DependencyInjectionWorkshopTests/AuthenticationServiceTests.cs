@@ -93,6 +93,24 @@ namespace DependencyInjectionWorkshopTests
             ShouldNotify(DefaultAccountId);
         }
 
+        [Test]
+        public void account_is_locked()
+        {
+            GivenAccountIsLocked(true);
+            ShouldThrow<FailedTooManyTimesException>();
+        }
+
+        private void ShouldThrow<TException>() where TException : Exception
+        {
+            TestDelegate action = () => _authenticationService.Verify(DefaultAccountId, InputPassword, "wrong otp");
+            Assert.Throws<TException>(action);
+        }
+
+        private void GivenAccountIsLocked(bool isLocked)
+        {
+            _fakeFailCounter.GetAccountIsLocked(DefaultAccountId).Returns(isLocked);
+        }
+
         private void ShouldNotify(string accountId)
         {
             _fakeNotification.Received(1).Notify(accountId);
