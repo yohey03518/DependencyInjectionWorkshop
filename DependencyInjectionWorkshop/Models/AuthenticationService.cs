@@ -72,9 +72,4 @@ namespace DependencyInjectionWorkshop.Models
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
         }
     }
-
-    public class FailedTooManyTimesException : Exception
-    {
-        public string AccountId { get; set; }
-    }
 }
