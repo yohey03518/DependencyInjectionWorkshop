@@ -38,6 +38,8 @@ namespace DependencyInjectionWorkshopTests
             _fakeNotification = Substitute.For<INotification>();
             _authenticationService = new AuthenticationService(_fakeProfile, _fakeHash, _fakeOtpService,
                 _fakeFailCounter, _fakeNotification, _fakeLogger);
+
+            _authenticationService = new NotificationDecorator(_authenticationService, _fakeNotification);
         }
 
         [Test]
