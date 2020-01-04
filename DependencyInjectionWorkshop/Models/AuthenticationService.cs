@@ -3,6 +3,19 @@ using System.Net.Http;
 
 namespace DependencyInjectionWorkshop.Models
 {
+    public class NLogAdapter
+    {
+        public NLogAdapter()
+        {
+        }
+
+        public void LogInfo(string accountId, int failedCount)
+        {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            logger.Info($"accountId:{accountId} failed times:{failedCount}");
+        }
+    }
+
     public class AuthenticationService
     {
         private ProfileDao _profileDao;
@@ -10,6 +23,7 @@ namespace DependencyInjectionWorkshop.Models
         private readonly OtpService _otpService;
         private readonly FailCounter _failCounter;
         private readonly SlackAdapter _slackAdapter;
+        private readonly NLogAdapter _nLogAdapter;
 
         public AuthenticationService()
         {
@@ -18,6 +32,7 @@ namespace DependencyInjectionWorkshop.Models
             _otpService = new OtpService();
             _failCounter = new FailCounter();
             _slackAdapter = new SlackAdapter();
+            _nLogAdapter = new NLogAdapter();
         }
 
         public bool Verify(string accountId, string inputPwd, string otp)
@@ -50,8 +65,7 @@ namespace DependencyInjectionWorkshop.Models
         {
             // record fail count log
             var failedCount = _failCounter.GetFailedCount(accountId, httpClient);
-            var logger = NLog.LogManager.GetCurrentClassLogger();
-            logger.Info($"accountId:{accountId} failed times:{failedCount}");
+            _nLogAdapter.LogInfo(accountId, failedCount);
         }
     }
 }
